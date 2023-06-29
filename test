@@ -1,35 +1,36 @@
-import OpenSSL.crypto
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.serialization.pkcs12 import load_key_and_certificates
+import zipfile
 
 pfx_file = 'your_file.pfx'  # Path to the PFX/P12 file
-password = 'your_password'  # Password for the PFX/P12 file
+password = b'your_password'  # Password for the PFX/P12 file
+zip_file = 'archive.zip'  # Path to the output zip file
 
 # Load the PFX/P12 file
-pfx_data = open(pfx_file, 'rb').read()
-pfx = OpenSSL.crypto.load_pkcs12(pfx_data, password)
+with open(pfx_file, 'rb') as f:
+    pfx_data = f.read()
 
-# Extract the private key
-private_key = pfx.get_privatekey().to_cryptography_key()
-private_key_data = private_key.private_bytes(
-    encoding=OpenSSL.crypto.FILETYPE_PEM,
-    format=OpenSSL.crypto.FILETYPE_PEM,
-    encryption_algorithm=OpenSSL.crypto.FILETYPE_PEM,
-    passphrase=None,
-)
+private_key, cert_chain, _ = load_key_and_certificates(pfx_data, password)
 
 # Save the private key to a file
 private_key_file = 'privatekey.key'
 with open(private_key_file, 'wb') as f:
-    f.write(private_key_data)
-
-# Extract the certificate
-cert = pfx.get_certificate()
-cert_data = OpenSSL.crypto.dump_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
+    f.write(private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    ))
 
 # Save the certificate to a file
 certificate_file = 'certificate.crt'
 with open(certificate_file, 'wb') as f:
-    f.write(cert_data)
+    for cert in cert_chain:
+        f.write(cert.public_bytes(serialization.Encoding.PEM))
 
-print('Splitting PFX/P12 file completed successfully.')
-print('Private key saved to:', private_key_file)
-print('Certificate saved to:', certificate_file)
+# Create a zip archive and add the private key and certificate files
+with zipfile.ZipFile(zip_file, 'w') as zipf:
+    zipf.write(private_key_file)
+    zipf.write(certificate_file)
+
+print('Splitting and archiving PFX/P12 file completed successfully.')
+print('Archive saved to:', zip_file)
