@@ -1,0 +1,35 @@
+import OpenSSL.crypto
+
+pfx_file = 'your_file.pfx'  # Path to the PFX/P12 file
+password = 'your_password'  # Password for the PFX/P12 file
+
+# Load the PFX/P12 file
+pfx_data = open(pfx_file, 'rb').read()
+pfx = OpenSSL.crypto.load_pkcs12(pfx_data, password)
+
+# Extract the private key
+private_key = pfx.get_privatekey().to_cryptography_key()
+private_key_data = private_key.private_bytes(
+    encoding=OpenSSL.crypto.FILETYPE_PEM,
+    format=OpenSSL.crypto.FILETYPE_PEM,
+    encryption_algorithm=OpenSSL.crypto.FILETYPE_PEM,
+    passphrase=None,
+)
+
+# Save the private key to a file
+private_key_file = 'privatekey.key'
+with open(private_key_file, 'wb') as f:
+    f.write(private_key_data)
+
+# Extract the certificate
+cert = pfx.get_certificate()
+cert_data = OpenSSL.crypto.dump_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
+
+# Save the certificate to a file
+certificate_file = 'certificate.crt'
+with open(certificate_file, 'wb') as f:
+    f.write(cert_data)
+
+print('Splitting PFX/P12 file completed successfully.')
+print('Private key saved to:', private_key_file)
+print('Certificate saved to:', certificate_file)
