@@ -74,8 +74,8 @@ generate_layout =[
 input_Data_tab_csr = [
     [sg.Text("CSR File Extension"), sg.Push(),sg.Listbox(['pem', 'csr'], default_values=['pem'], size=(25,2), enable_events=True,  no_scrollbar=True, key='-FILEXTN-')],
     [sg.Text("Private Key Password"), sg.Push(),sg.Input(size=(25,1), enable_events=True, key='-KEYPASS-')],
-    [sg.Text("Organization Name"), sg.Push(),sg.Input(size=(25,1), default_text='TD', enable_events=True, key='-ORGNAME-')],
-    [sg.Text("Organization Unit"), sg.Push(),sg.Input(size=(25,1), default_text='TD', enable_events=True, key='-ORGUNIT-')],
+    [sg.Text("Organization Name"), sg.Push(),sg.Input(size=(25,1), enable_events=True, key='-ORGNAME-')],
+    [sg.Text("Organization Unit"), sg.Push(),sg.Input(size=(25,1), enable_events=True, key='-ORGUNIT-')],
     [sg.Text("Country"), sg.Push(),sg.Input(size=(25,1), default_text='CA', enable_events=True, key='-COUNTRY-')],
     [sg.Text("Province"), sg.Push(),sg.Input(size=(25,1), default_text='Ontario', enable_events=True, key='-PROVINCE-')],
     [sg.Text("City"), sg.Push(),sg.Input(size=(25,1), default_text='Toronto', enable_events=True, key='-CITY-')],
